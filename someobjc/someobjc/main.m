@@ -7,92 +7,68 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Calculator.h"
 
-int menu() {
-    int menu_item = 0;
+BOOL isEnglishAlphabet(char ch){
+    NSString *pattern = @"([a-z])";
+    NSRegularExpressionOptions regexpOptions = NSRegularExpressionCaseInsensitive;
+    NSError* error = NULL;
     
-    // Выводим приветствие
-    printf("\nSelect what did you want to do with entered numbers.");
-    printf("\n--------\n");
-    printf(" 1: First plus second\n");
-    printf(" 2: First minus scond\n");
-    printf(" 3: First multiply second\n");
-    printf(" 4: Second divided by first\n");
-    printf(" 5: Average of three numbers (must enter another one number after chose this menu)\n");
-    printf("-1: Exit\n");
-    printf("--------\n");
+    NSRegularExpression* regexp = [NSRegularExpression regularExpressionWithPattern: pattern options: regexpOptions error: &error];
     
-    // Просим выбрать элемент меню
-    scanf("%i",&menu_item);
-    
-    if (menu_item == -1 || menu_item == 1 || menu_item == 2 || menu_item == 3 || menu_item == 4 || menu_item == 5) {
-        return menu_item;
+    if (error){
+        return NO;
     } else {
-        printf("You must chose only one of the printed menu itemes or -1 to exit");
-        return menu();
+        NSString *testChar = [NSString stringWithUTF8String:&ch];
+        NSInteger match = [regexp numberOfMatchesInString:testChar options:0 range:NSMakeRange(0, [testChar length])];
+        
+        if (match > 0){
+            return YES;
+        } else {
+            return NO;
+        }
     }
+    
+    return YES;
 }
 
-void calc() {
-    // Собираем числа
-    int first = 0;
-    int second = 0;
-    int third = 0;
-    int operator = -1;
+void hwMenu() {
+    int operations = -1;
+    char ch;
     
-    printf("\nPlease enter two numbers and choose what did you want to do.\n");
-    printf("First one (or -1 to exit): ");
-    scanf("%i", &first);
+    printf("\nChose what part of homewak you whant to use:\n");
+    printf(" 1. Test char as a part of english alphaber.\n");
+    printf(" 2. Calculator.\n");
+    printf("-1. Exit\n");
+
+    printf("You're chose: ");
+    scanf(" %i", &operations);
     
-    if (first >= 0){
-        printf("Second (or -1 to exit): ");
-        scanf("%i", &second);
-    }
-    
-    // Запросим действие
-    if (first >= 0 && second >= 0) {
-        operator = menu();
-    }
-    
-    if (operator != -1) {
-        switch (operator) {
-            case 1:
-                printf("Summ is: %i\n", (first + second));
-                break;
-            case 2:
-                printf("Diff is: %i\n", (first - second));
-                break;
-            case 3:
-                printf("Summ is: %i\n", (first * second));
-                break;
-            case 4:
-                if (second == 0) {
-                    printf("You can't divide on zero!");
-                } else {
-                    printf("Diff is: %i\n", (first / second));
-                }
-                
-                break;
-            case 5:
-                printf("Please enter one more nuber: ");
-                scanf("%i", &third);
-                
-                int avg = (first + second + third) / 3;
-                printf("Average from three numbers is: %i\n", avg);
-                break;
-            default:
-                printf("Unknown operator");
-                break;
+    if (operations == 1) {
+        BOOL test = NO;
+        
+        printf("Enter some char to test: ");
+        scanf(" %c", &ch);
+        
+        test = isEnglishAlphabet(ch);
+
+        if (test == YES) {
+            printf("-----\nYou enter PART of english alphabet\n-----");
+        } else {
+            printf("-----\nYou enter NON english alphabet character.\n-----");
         }
         
-        // Повторим еще раз
-        calc();
+        
+        hwMenu();
+    } else {
+        Calculator *calc = [Calculator new];
+        [calc getNumbers];
     }
 }
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        calc();
+        hwMenu();
     }
     return 0;
 }
