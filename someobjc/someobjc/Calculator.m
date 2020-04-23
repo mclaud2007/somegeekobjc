@@ -10,9 +10,16 @@
 
 @implementation Calculator
 
+
 -(void)getMenu {
     Calculator *calc = self;
     int menu_item = 0;
+    
+    OperationType plus = opPlus;
+    OperationType minus = opMinus;
+    OperationType multiply = opMultipy;
+    OperationType divide = opDivide;
+    OperationType avg = opAvg;
     
     // Выводим приветствие
     printf("\nSelect what did you want to do with entered numbers.");
@@ -29,7 +36,7 @@
     scanf("%int",&menu_item);
     calc.operations = [NSNumber numberWithInteger:menu_item];
     
-    if (menu_item != -1 && menu_item != 1 && menu_item != 2 && menu_item != 3 && menu_item != 4 && menu_item != 5) {
+    if (menu_item != -1 && menu_item != plus && menu_item != minus && menu_item != multiply && menu_item != divide && menu_item != avg) {
         printf("You must chose only one of the printed menu itemes or -1 to exit");
         [self getMenu];
     }
@@ -67,44 +74,40 @@
 -(void) doCalculateWithOperation:(NSNumber *) operation {
     Calculator *calc = self;
     
-    switch ([operation intValue]) {
-        case 1: {
-            [self doPlusWithFirst:calc.first Second:calc.second];
-            break;
+    OperationType plus = opPlus;
+    OperationType minus = opMinus;
+    OperationType multiply = opMultipy;
+    OperationType divide = opDivide;
+    OperationType avg = opAvg;
+    
+    NSInteger oper = [operation integerValue];
+    
+    if (oper == plus) {
+        [self doPlusWithFirst:calc.first Second:calc.second];
+    } else if (oper == minus) {
+        [self doMinusWithFirst:calc.first Second:calc.second];
+        
+    } else if (oper == multiply) {
+        [self doMultiplyWithFirst:calc.first Second:calc.second];
+        
+    } else if (oper == divide) {
+        if (calc.second == 0) {
+            printf("You can't divide on zero!");
+        } else {
+            [self doDevideWithFirst:calc.first Second:calc.second];
         }
-        case 2: {
-            [self doMinusWithFirst:calc.first Second:calc.second];
-            break;
-        }
-        case 3: {
-            [self doMultiplyWithFirst:calc.first Second:calc.second];
-            break;
-        }
-        case 4: {
-            if (calc.second == 0) {
-                printf("You can't divide on zero!");
-            } else {
-                [self doDevideWithFirst:calc.first Second:calc.second];
-            }
-            
-            break;
-        }
-        case 5: {
-            int third = 0;
-            
-            printf("Please enter one more nuber: ");
-            scanf("%i", &third);
-            
-            [self doAvgWithFirst:calc.first Second:calc.second Third:[NSNumber numberWithInteger:third]];
-            break;
-        }
-        case -1: {
-            printf("Exit!\n");
-            break;
-        }
-        default:
-            printf("Unknown operator");
-            break;
+    } else if (oper == avg) {
+        int third = 0;
+        
+        printf("Please enter one more nuber: ");
+        scanf("%i", &third);
+        
+        [self doAvgWithFirst:calc.first Second:calc.second Third:[NSNumber numberWithInteger:third]];
+        
+    } else if (oper == -1) {
+        printf("Exit!\n");
+    } else {
+        printf("Unknown operator");
     }
 
     // И запускаем заново

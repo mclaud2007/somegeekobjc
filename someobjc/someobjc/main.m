@@ -39,6 +39,7 @@ void hwMenu() {
     printf("\nChose what part of homewak you whant to use:\n");
     printf(" 1. Test char as a part of english alphaber.\n");
     printf(" 2. Calculator.\n");
+    printf(" 3. Enter and print.\n");
     printf("-1. Exit\n");
 
     printf("You're chose: ");
@@ -60,6 +61,38 @@ void hwMenu() {
         
         
         hwMenu();
+    } else if (operations == 3) {
+        int number = 0;
+                
+        // Нужно получить хотя бы одно число
+        printf("Enter number: ");
+        scanf(" %i", &number);
+        
+        NSMutableArray *array = [NSMutableArray arrayWithObject:[NSNumber numberWithInt:number]];
+        
+        do {
+            printf("Enter one more number or -1 to exit: ");
+            scanf(" %i", &number);
+            
+            // Добавляем в конец массива полученное число
+            NSInteger count = [array count];
+            [array insertObject:[NSNumber numberWithInt:number] atIndex:count];
+        } while (number != -1);
+        
+        printf("You enter this: ");
+        
+        // Теперь выведем что получилось
+        for (NSNumber *number in array) {
+            // -1 нам не нужна - будем считать её последним числом в массиве
+            if ([number intValue] != -1){
+                printf("%i", [number intValue]);
+                printf(",");
+            }
+        }
+        
+        printf("\n");
+        hwMenu();
+        
     } else {
         Calculator *calc = [Calculator new];
         [calc getNumbers];
