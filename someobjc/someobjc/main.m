@@ -8,100 +8,114 @@
 
 #import <Foundation/Foundation.h>
 #import "Calculator.h"
+#import "main.h"
+#import "Bird.h"
+#import "Flock.h"
 
-BOOL isEnglishAlphabet(char ch){
-    NSString *pattern = @"([a-z])";
-    NSRegularExpressionOptions regexpOptions = NSRegularExpressionCaseInsensitive;
-    NSError* error = NULL;
+void selectCalculatorOperation (Calculator *calc) {
+    [calc retain];
     
-    NSRegularExpression* regexp = [NSRegularExpression regularExpressionWithPattern: pattern options: regexpOptions error: &error];
+    int menu_item = 0;
     
-    if (error){
-        return NO;
-    } else {
-        NSString *testChar = [NSString stringWithUTF8String:&ch];
-        NSInteger match = [regexp numberOfMatchesInString:testChar options:0 range:NSMakeRange(0, [testChar length])];
-        
-        if (match > 0){
-            return YES;
-        } else {
-            return NO;
+    // Выводим приветствие
+    printf("\nSelect what did you want to do with entered numbers.");
+    printf("\n--------\n");
+    printf(" 1: First plus second\n");
+    printf(" 2: First minus scond\n");
+    printf(" 3: First multiply second\n");
+    printf(" 4: Second divided by first\n");
+    printf(" 5: Average of three numbers (must enter another one number after chose this menu)\n");
+    printf("-1: Exit\n");
+    printf("--------\n");
+    
+    // Просим выбрать элемент меню
+    scanf("%int", &menu_item);
+    
+    // Проверим введенное число
+    switch (menu_item) {
+        // Либо одна из пяти стандартных операций (и на последней мы остановимся)
+        // либо дефолтный кейс
+        case opPlus:
+        case opMinus:
+        case opMultipy:
+        case opDivide:
+        case opAvg:
+            calc.operations = [NSNumber numberWithInteger:menu_item];
+            break;
+        default: {
+            selectCalculatorOperation(calc);
         }
+        
     }
     
-    return YES;
+    [calc release];
 }
 
-void hwMenu() {
-    int operations = -1;
-    char ch;
+void loadNumbers (Calculator *calc) {
+    [calc retain];
     
-    printf("\nChose what part of homewak you whant to use:\n");
-    printf(" 1. Test char as a part of english alphaber.\n");
-    printf(" 2. Calculator.\n");
-    printf(" 3. Enter and print.\n");
-    printf("-1. Exit\n");
-
-    printf("You're chose: ");
-    scanf(" %i", &operations);
+    int first_entered = 0;
+    int second_entered = 0;
     
-    if (operations == 1) {
-        BOOL test = NO;
+    printf("\nPlease enter two numbers and choose what did you want to do.\n");
+    printf("First one (or -1 to exit): ");
+    scanf("%i", &first_entered);
+    
+    if (first_entered > -1) {
+        printf("Second one (or -1 to exit): ");
+        scanf("%i", &second_entered);
         
-        printf("Enter some char to test: ");
-        scanf(" %c", &ch);
-        
-        test = isEnglishAlphabet(ch);
+        // Инициализируем калькулятор введенными данными
+        [calc initWithNumbersFirst:[NSNumber numberWithInt:first_entered] Second:[NSNumber numberWithInt:second_entered]];
+    }
+    
+    [calc release];
+}
 
-        if (test == YES) {
-            printf("-----\nYou enter PART of english alphabet\n-----");
-        } else {
-            printf("-----\nYou enter NON english alphabet character.\n-----");
-        }
-        
-        
-        hwMenu();
-    } else if (operations == 3) {
-        int number = 0;
-                
-        // Нужно получить хотя бы одно число
-        printf("Enter number: ");
-        scanf(" %i", &number);
-        
-        NSMutableArray *array = [NSMutableArray arrayWithObject:[NSNumber numberWithInt:number]];
-        
-        do {
-            printf("Enter one more number or -1 to exit: ");
-            scanf(" %i", &number);
-            
-            // Добавляем в конец массива полученное число
-            NSInteger count = [array count];
-            [array insertObject:[NSNumber numberWithInt:number] atIndex:count];
-        } while (number != -1);
-        
-        printf("You enter this: ");
-        
-        // Теперь выведем что получилось
-        for (NSNumber *number in array) {
-            // -1 нам не нужна - будем считать её последним числом в массиве
-            if ([number intValue] != -1){
-                printf("%i", [number intValue]);
-                printf(",");
-            }
-        }
-        
-        printf("\n");
-        hwMenu();
-        
-    } else {
+void getMenu () {
+    int operation = 0;
+    
+    printf("  1. Calculator\n");
+    printf("  2. Birds\n");
+    printf(" -1. Exit\n");
+    
+    printf("Select part of homework:");
+    
+    scanf(" %i", &operation);
+    
+    if (operation == 1) {
         Calculator *calc = [Calculator new];
-        [calc getNumbers];
+        loadNumbers(calc);
+        
+        [calc release];
+        
+        getMenu();
+        
+    } else if (operation == 2) {
+        // Создаем четырех птиц
+        Bird *bird1 = [[Bird alloc] initWithName:@"Scrooge"];
+        Bird *bird2 = [[Bird alloc] initWithName:@"Huey"];
+        Bird *bird3 = [[Bird alloc] initWithName:@"Dewey"];
+        Bird *bird4 = [[Bird alloc] initWithName:@"Louie"];
+        
+        // Троих ради эксперимента собираем в маасив
+        NSArray *birds = [NSArray arrayWithObjects:bird1, bird2, bird3, bird4, nil];
+        
+        // Создаем стаю
+        Flock *flock = [[Flock alloc] configWithBirds:birds];
+            
+        NSLog(@"%@", flock);
+        
+        getMenu();
+    } else if (operation != -1) {
+        getMenu();
     }
 }
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        hwMenu();
+        getMenu();
     }
+    
     return 0;
 }

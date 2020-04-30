@@ -12,9 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Calculator : NSObject
 
-@property NSNumber *first;
-@property NSNumber *second;
-@property NSNumber *operations;
+@property (nonatomic, strong) NSNumber *first;
+@property (nonatomic, strong) NSNumber *second;
+@property (nonatomic, strong) NSNumber *operations;
 
 enum OperationType {
     opPlus = 1,
@@ -26,13 +26,12 @@ enum OperationType {
 
 typedef NSInteger OperationType;
 
--(void)getMenu;
--(void)doPlusWithFirst:(NSNumber *) first Second:(NSNumber *) second;
--(void)doMinusWithFirst:(NSNumber *) first Second:(NSNumber *) second;
--(void)doMultiplyWithFirst:(NSNumber *) first Second:(NSNumber *) second;
--(void)doDevideWithFirst:(NSNumber *) first Second:(NSNumber *) second;
--(void)doAvgWithFirst:(NSNumber *) first Second:(NSNumber *) second Third:(NSNumber *) third;
--(void)getNumbers;
+- (void)initWithNumbersFirst:(NSNumber *) first Second:(NSNumber *) second;
+- (void)doPlusWithFirst:(NSNumber *) first Second:(NSNumber *) second;
+- (void)doMinusWithFirst:(NSNumber *) first Second:(NSNumber *) second;
+- (void)doMultiplyWithFirst:(NSNumber *) first Second:(NSNumber *) second;
+- (void)doDevideWithFirst:(NSNumber *) first Second:(NSNumber *) second;
+- (void)doAvgWithFirst:(NSNumber *) first Second:(NSNumber *) second Third:(NSNumber *) third;
 
 @end
 
