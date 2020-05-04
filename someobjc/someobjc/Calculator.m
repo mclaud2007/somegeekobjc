@@ -9,105 +9,96 @@
 #import "Calculator.h"
 #import "main.h"
 
+CalculatorBlock sum = ^(NSNumber *first, NSNumber *second) {
+    return [NSNumber numberWithInt:[first intValue] + [second intValue]];
+};
+
+CalculatorBlock minus = ^(NSNumber *first, NSNumber *second) {
+    return [NSNumber numberWithInt:[first intValue] - [second intValue]];
+};
+
+CalculatorBlock multy = ^(NSNumber *first, NSNumber *second) {
+    return [NSNumber numberWithInt:[first intValue] * [second intValue]];
+};
+
+CalculatorBlock divide = ^(NSNumber *first, NSNumber *second) {
+    return [NSNumber numberWithInt:[first intValue] / [second intValue]];
+};
+
+CalculatorResult resultBlock = ^(NSNumber *result) {
+    int res = [result intValue];
+    printf("Result is: %i", res);
+};
+
 @implementation Calculator: NSObject
 
 -(void) initWithNumbersFirst:(NSNumber *) first Second:(NSNumber *) second {
-    [super init];
-    
-    [first retain];
-    [first release];
     _first = first;
-    
-    [second retain];
-    [second release];
     _second = second;
     
     if ([_second intValue] > -1) {
-        // Выберем что хотим сделать
-        selectCalculatorOperation(self);
+        // Пока пользователь выбирает что сделать - в фоне посчитаем все операции
+        dispatch_queue_t globalQueueDefault = dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
         
-        // И сделаем
-        [self doCalculate];
-    }
-}
+        __block NSNumber *resultSum = nil;
+        __block NSNumber *resultMinus = nil;
+        __block NSNumber *resultMultiply = nil;
+        __block NSNumber *resultDivide = nil;
+        
+        // Совершенно не нужный здесь блок, присутствует лишь для практики
+        MakeQueue queue = ^(void) {
+            dispatch_async(globalQueueDefault, ^{
+                resultSum = sum(self.first, self.second);
+            });
 
--(void) doCalculate {
-    switch ([self.operations intValue]) {
-        case opPlus: {
-            [self doPlusWithFirst:self.first Second:self.second];
-            break;
+            dispatch_async(globalQueueDefault, ^{
+                resultMinus = minus(self.first, self.second);
+            });
+            
+            dispatch_async(globalQueueDefault, ^{
+                resultMultiply = multy(self.first, self.second);
+            });
+            
+            dispatch_async(globalQueueDefault, ^{
+                if (self.second > 0) {
+                    resultDivide = divide(self.first, self.second);
+                }
+            });
+        };
+        
+        queue();
+        
+        // Ждем выбора оперции
+        dispatch_barrier_sync(globalQueueDefault, ^{
+            selectCalculatorOperation(self);
+        });
+        
+        NSNumber *result = nil;
+        
+        // Выводим результат в зависимости от выбора пользователя
+        switch ([self.operations intValue]) {
+            case opPlus:
+                result = resultSum;
+                break;
+            case opMinus:
+                result = resultMinus;
+                break;
+            case opDivide:
+                result = resultDivide;
+                break;
+            default:
+                break;
         }
-            
-        case opMinus: {
-            [self doMinusWithFirst:self.first Second:self.second];
-            break;
+        
+        if (result != nil) {
+            resultBlock(result);
+        } else {
+            printf("Unknown operation");
         }
-            
-        case opMultipy: {
-            [self doMultiplyWithFirst:self.first Second:self.second];
-            break;
-        }
-            
-        case opDivide: {
-            if (self.second == 0) {
-                printf("You can't divide on zero!");
-            } else {
-                [self doDevideWithFirst:self.first Second:self.second];
-            }
-            
-            break;
-        }
-            
-        case opAvg: {
-            int third = 0;
-            
-            printf("Please enter one more nuber: ");
-            scanf("%i", &third);
-            
-            [self doAvgWithFirst:self.first Second:self.second Third:[NSNumber numberWithInteger:third]];
-            break;
-        }
-            
-        case -1: {
-            printf("Exit!\n");
-            break;
-        }
-            
-        default:
-            printf("Unknown operator");
-            break;
-    }
-
-    // И запускаем заново
-    if ([self.operations intValue] > -1) {
+        
+        // Запускаем программу по кругу
         loadNumbers(self);
     }
-}
-
--(void)doPlusWithFirst:(NSNumber *) first Second:(NSNumber *) second {
-    printf("Summ is: %i\n", ([first intValue] + [second intValue]));
-}
-
--(void)doMinusWithFirst:(NSNumber *) first Second:(NSNumber *) second {
-    printf("Diff is: %i\n", ([first intValue] - [second intValue]));
-}
-
--(void)doMultiplyWithFirst:(NSNumber *) first Second:(NSNumber *) second {
-    printf("Summ is: %i\n", ([first intValue] * [second intValue]));
-}
-
--(void)doDevideWithFirst:(NSNumber *) first Second:(NSNumber *) second {
-    printf("Diff is: %i\n", ([first intValue] / [second intValue]));
-}
-
--(void)doAvgWithFirst:(NSNumber *) first Second:(NSNumber *) second Third:(NSNumber *) third {
-    int avg = ([first intValue] + [second intValue] + [third intValue]) / 3;
-    printf("Average from three numbers is: %i\n", avg);
-}
-
-- (void) dealloc {
-    [super dealloc];
-    printf("calculator is dead\n");
 }
 
 @end

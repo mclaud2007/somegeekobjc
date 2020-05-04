@@ -25,13 +25,11 @@ enum OperationType {
 };
 
 typedef NSInteger OperationType;
+typedef NSNumber * _Nonnull (^CalculatorBlock) (NSNumber * first, NSNumber * second);
+typedef void (^CalculatorResult) (NSNumber * result);
+typedef void (^MakeQueue) (void);
 
 - (void)initWithNumbersFirst:(NSNumber *) first Second:(NSNumber *) second;
-- (void)doPlusWithFirst:(NSNumber *) first Second:(NSNumber *) second;
-- (void)doMinusWithFirst:(NSNumber *) first Second:(NSNumber *) second;
-- (void)doMultiplyWithFirst:(NSNumber *) first Second:(NSNumber *) second;
-- (void)doDevideWithFirst:(NSNumber *) first Second:(NSNumber *) second;
-- (void)doAvgWithFirst:(NSNumber *) first Second:(NSNumber *) second Third:(NSNumber *) third;
 
 @end
 
